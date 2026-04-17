@@ -1,0 +1,146 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle, ArrowRight, Lightbulb, Stethoscope } from "lucide-react";
+import { loadSession } from "@/lib/session";
+import { analyze, type AnalysisResult } from "@/lib/analyze";
+import { TRIAGE_DESCRIPTION, TRIAGE_LABEL, TRIAGE_COLOR } from "@/lib/triage";
+import { TriageBadge } from "@/components/TriageBadge";
+import { SYMPTOMS } from "@/data/symptoms";
+
+export const Route = createFileRoute("/result")({
+  head: () => ({
+    meta: [{ title: "Результаты опроса — МедАссистент" }],
+  }),
+  component: ResultPage,
+});
+
+function ResultPage() {
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [empty, setEmpty] = useState(false);
+
+  useEffect(() => {
+    const data = loadSession();
+    if (!data) {
+      setEmpty(true);
+      return;
+    }
+    setResult(analyze(data));
+  }, []);
+
+  const symptomLabel = useMemo(() => {
+    const m = new Map(SYMPTOMS.map((s) => [s.id, s.label]));
+    return (id: string) => m.get(id) ?? id;
+  }, []);
+
+  if (empty) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 className="text-2xl font-semibold">Сначала пройдите опрос</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Чтобы увидеть результаты, заполните пошаговый опросник.</p>
+        <Link to="/check" className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          Перейти к опросу <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+    );
+  }
+
+  if (!result) return <div className="mx-auto max-w-2xl px-4 py-16 text-sm text-muted-foreground">Анализируем…</div>;
+
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-10">
+      <h1 className="text-2xl font-semibold text-foreground">Возможные направления</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Список не является диагнозом. Используйте его как ориентир в разговоре с врачом.
+      </p>
+
+      {/* Overall triage */}
+      <div className={`mt-6 rounded-2xl border p-5 ${TRIAGE_COLOR[result.overallTriage]}`}>
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 h-5 w-5" />
+          <div>
+            <p className="text-sm font-semibold">Общий уровень риска: {TRIAGE_LABEL[result.overallTriage]}</p>
+            <p className="mt-1 text-sm">{TRIAGE_DESCRIPTION[result.overallTriage]}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Red flags */}
+      {result.redFlagsPresent.length > 0 && (
+        <div className="mt-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-5">
+          <p className="text-sm font-semibold text-destructive">🚩 Тревожные симптомы</p>
+          <ul className="mt-2 list-disc pl-5 text-sm text-foreground">
+            {result.redFlagsPresent.map((s) => (
+              <li key={s}>{symptomLabel(s)}</li>
+            ))}
+          </ul>
+          <p className="mt-2 text-sm text-foreground">При этих симптомах рекомендуем обратиться за медицинской помощью без промедления.</p>
+        </div>
+      )}
+
+      {/* Mini-analysis */}
+      <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+        <div className="flex items-center gap-2">
+          <Lightbulb className="h-4 w-4 text-primary" />
+          <h2 className="font-semibold text-foreground">Мини-анализ (на основе введённых данных)</h2>
+        </div>
+        <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+          {result.reasoning.map((r, i) => (
+            <li key={i}>• {r}</li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Differential list */}
+      <section className="mt-6 space-y-3">
+        <h2 className="text-lg font-semibold text-foreground">Дифференциальные направления</h2>
+        {result.matches.length === 0 && (
+          <p className="text-sm text-muted-foreground">Совпадений не найдено. Попробуйте уточнить симптомы или обратитесь к врачу.</p>
+        )}
+        {result.matches.map((m) => (
+          <Link
+            key={m.disease.id}
+            to="/disease/$diseaseId"
+            params={{ diseaseId: m.disease.id }}
+            className="block rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="font-semibold text-foreground">{m.disease.name}</h3>
+                <p className="text-xs text-muted-foreground">{m.disease.category}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-primary-soft px-2.5 py-1 text-xs font-medium text-primary">
+                  Совпадение {m.score}%
+                </span>
+                <TriageBadge level={m.disease.triage} />
+              </div>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">{m.disease.shortDescription}</p>
+
+            {/* Why */}
+            <div className="mt-3 rounded-lg border border-border bg-secondary/40 p-3">
+              <p className="text-xs font-semibold text-foreground">Почему?</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Совпали симптомы:{" "}
+                <span className="text-foreground">{m.matchedSymptoms.map(symptomLabel).join(", ")}</span>.
+              </p>
+            </div>
+
+            <div className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
+              Подробнее <ArrowRight className="h-3.5 w-3.5" />
+            </div>
+          </Link>
+        ))}
+      </section>
+
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Link to="/check" className="rounded-lg border border-border bg-card px-4 py-2 text-sm hover:bg-secondary">
+          Пройти опрос заново
+        </Link>
+        <Link to="/catalog" className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          <Stethoscope className="h-4 w-4" /> Поиск по болезням
+        </Link>
+      </div>
+    </div>
+  );
+}
