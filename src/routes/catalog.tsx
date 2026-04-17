@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { DISEASES } from "@/data/diseases";
 import { TriageBadge } from "@/components/TriageBadge";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/catalog")({
   head: () => ({
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/catalog")({
 });
 
 function CatalogPage() {
+  const { t } = useI18n();
   const [q, setQ] = useState("");
 
   const categories = useMemo(() => Array.from(new Set(DISEASES.map((d) => d.category))).sort(), []);
@@ -35,8 +37,10 @@ function CatalogPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-foreground">Каталог заболеваний</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Более {DISEASES.length}+ состояний с краткими критериями и уровнем риска.</p>
+      <h1 className="text-2xl font-semibold text-foreground">{t("catalog.title")}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {DISEASES.length}+ {t("catalog.subtitle")}
+      </p>
 
       <div className="mt-6 flex flex-col gap-3 md:flex-row">
         <div className="relative flex-1">
@@ -45,7 +49,7 @@ function CatalogPage() {
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Поиск по названию или симптому…"
+            placeholder={t("catalog.search.ph")}
             className="w-full rounded-xl border border-input bg-card px-9 py-2.5 text-sm shadow-[var(--shadow-card)] focus:border-primary focus:outline-none"
           />
         </div>
@@ -54,7 +58,7 @@ function CatalogPage() {
           onChange={(e) => setCat(e.target.value)}
           className="rounded-xl border border-input bg-card px-3 py-2.5 text-sm shadow-[var(--shadow-card)] focus:border-primary focus:outline-none"
         >
-          <option value="">Все категории</option>
+          <option value="">{t("catalog.allCategories")}</option>
           {categories.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -63,7 +67,7 @@ function CatalogPage() {
         </select>
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground">Найдено: {filtered.length}</p>
+      <p className="mt-3 text-xs text-muted-foreground">{t("catalog.found")} {filtered.length}</p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((d) => (

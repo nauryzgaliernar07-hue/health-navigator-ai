@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 import { SOURCES } from "@/data/sources";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/sources")({
   head: () => ({
@@ -13,12 +14,11 @@ export const Route = createFileRoute("/sources")({
 });
 
 function SourcesPage() {
+  const { t } = useI18n();
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-foreground">Источники</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Информация на сайте основана на открытых клинических руководствах и проверенных медицинских ресурсах.
-      </p>
+      <h1 className="text-2xl font-semibold text-foreground">{t("sources.title")}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t("sources.subtitle")}</p>
 
       <ul className="mt-6 space-y-3">
         {SOURCES.map((s) => (
@@ -34,7 +34,7 @@ function SourcesPage() {
                 rel="noopener noreferrer"
                 className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary"
               >
-                Открыть <ExternalLink className="h-3.5 w-3.5" />
+                {t("sources.open")} <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </div>
           </li>
@@ -42,8 +42,7 @@ function SourcesPage() {
       </ul>
 
       <div className="mt-8 rounded-2xl border border-border bg-secondary/40 p-4 text-sm text-muted-foreground">
-        Сервис не предоставляет медицинских услуг и не заменяет очную консультацию врача. Все рекомендации носят информационный
-        характер.
+        {t("sources.disclaimer")}
       </div>
     </div>
   );

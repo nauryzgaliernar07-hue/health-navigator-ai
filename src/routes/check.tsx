@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Info } from "lucide-react";
 import { SYMPTOMS } from "@/data/symptoms";
 import { saveSession } from "@/lib/session";
 import type { AnalysisInput } from "@/lib/analyze";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/check")({
   head: () => ({
@@ -15,11 +16,18 @@ export const Route = createFileRoute("/check")({
   component: CheckPage,
 });
 
-const STEPS = ["Профиль", "Симптомы", "Длительность", "Образ жизни", "Аллергии"] as const;
-
 function CheckPage() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+
+  const STEPS = [
+    t("check.step.profile"),
+    t("check.step.symptoms"),
+    t("check.step.duration"),
+    t("check.step.lifestyle"),
+    t("check.step.allergies"),
+  ];
 
   const [age, setAge] = useState<string>("");
   const [sex, setSex] = useState<"male" | "female" | "other" | "">("");
@@ -70,10 +78,12 @@ function CheckPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-foreground">Пошаговый опрос</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Ответы остаются у вас в браузере. Это не диагноз — лишь ориентир для разговора с врачом.
-      </p>
+      <h1 className="text-2xl font-semibold text-foreground">{t("check.title")}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t("check.subtitle")}</p>
+
+      <div className="mt-3 inline-flex items-start gap-2 rounded-lg border border-primary/20 bg-primary-soft/60 px-3 py-2 text-xs text-foreground">
+        <Info className="mt-0.5 h-3.5 w-3.5 text-primary" /> {t("check.basis")}
+      </div>
 
       {/* Stepper */}
       <ol className="mt-6 flex flex-wrap items-center gap-2 text-xs">
@@ -100,7 +110,7 @@ function CheckPage() {
         {step === 0 && (
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Возраст</label>
+              <label className="text-sm font-medium text-foreground">{t("check.age")}</label>
               <input
                 type="number"
                 min={0}
@@ -108,16 +118,16 @@ function CheckPage() {
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                placeholder="Например, 34"
+                placeholder={t("check.age.ph")}
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Пол</label>
+              <label className="text-sm font-medium text-foreground">{t("check.sex")}</label>
               <div className="mt-2 flex gap-2">
                 {[
-                  { v: "male", l: "Мужской" },
-                  { v: "female", l: "Женский" },
-                  { v: "other", l: "Другое" },
+                  { v: "male", l: t("check.sex.male") },
+                  { v: "female", l: t("check.sex.female") },
+                  { v: "other", l: t("check.sex.other") },
                 ].map((o) => (
                   <button
                     key={o.v}
@@ -139,7 +149,7 @@ function CheckPage() {
 
         {step === 1 && (
           <div className="space-y-5">
-            <p className="text-sm text-muted-foreground">Выберите все, что подходит.</p>
+            <p className="text-sm text-muted-foreground">{t("check.symptoms.hint")}</p>
             {Object.entries(grouped).map(([cat, list]) => (
               <div key={cat}>
                 <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{cat}</h3>
@@ -170,19 +180,19 @@ function CheckPage() {
         {step === 2 && (
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Сколько дней длятся симптомы?</label>
+              <label className="text-sm font-medium text-foreground">{t("check.duration.q")}</label>
               <input
                 type="number"
                 min={0}
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                placeholder="Например, 3"
+                placeholder={t("check.duration.ph")}
               />
             </div>
             <div>
               <label className="text-sm font-medium text-foreground">
-                Интенсивность: <span className="text-primary">{intensity}/10</span>
+                {t("check.intensity")}: <span className="text-primary">{intensity}/10</span>
               </label>
               <input
                 type="range"
@@ -193,9 +203,9 @@ function CheckPage() {
                 className="mt-2 w-full accent-[oklch(0.58_0.14_235)]"
               />
               <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-                <span>Слабо</span>
-                <span>Умеренно</span>
-                <span>Сильно</span>
+                <span>{t("check.intensity.low")}</span>
+                <span>{t("check.intensity.mid")}</span>
+                <span>{t("check.intensity.high")}</span>
               </div>
             </div>
           </div>
@@ -204,7 +214,7 @@ function CheckPage() {
         {step === 3 && (
           <div className="space-y-4">
             <div>
-              <p className="text-sm font-medium text-foreground">Хронические заболевания</p>
+              <p className="text-sm font-medium text-foreground">{t("check.chronic")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[
                   "Гипертония",
@@ -241,10 +251,10 @@ function CheckPage() {
                 onChange={(e) => setSmokes(e.target.checked)}
                 className="h-4 w-4 accent-[oklch(0.58_0.14_235)]"
               />
-              Курю
+              {t("check.smokes")}
             </label>
             <div>
-              <label className="text-sm font-medium text-foreground">Часов сна в сутки</label>
+              <label className="text-sm font-medium text-foreground">{t("check.sleep")}</label>
               <input
                 type="number"
                 min={0}
@@ -252,7 +262,7 @@ function CheckPage() {
                 value={sleep}
                 onChange={(e) => setSleep(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                placeholder="Например, 7"
+                placeholder={t("check.sleep.ph")}
               />
             </div>
           </div>
@@ -260,18 +270,14 @@ function CheckPage() {
 
         {step === 4 && (
           <div className="space-y-3">
-            <label className="text-sm font-medium text-foreground">
-              Есть ли у вас аллергия на лекарства? (важно — повлияет на рекомендации)
-            </label>
+            <label className="text-sm font-medium text-foreground">{t("check.allergies.q")}</label>
             <textarea
               value={allergies}
               onChange={(e) => setAllergies(e.target.value)}
               className="min-h-[120px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
-              placeholder="Например: пенициллин, аспирин, ибупрофен, нет"
+              placeholder={t("check.allergies.ph")}
             />
-            <p className="text-xs text-muted-foreground">
-              Если вы укажете препарат, мы исключим его из рекомендаций по обезболиванию.
-            </p>
+            <p className="text-xs text-muted-foreground">{t("check.allergies.note")}</p>
           </div>
         )}
 
@@ -282,7 +288,7 @@ function CheckPage() {
             disabled={step === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition disabled:opacity-40 enabled:hover:bg-secondary"
           >
-            <ArrowLeft className="h-4 w-4" /> Назад
+            <ArrowLeft className="h-4 w-4" /> {t("check.back")}
           </button>
           {step < STEPS.length - 1 ? (
             <button
@@ -291,7 +297,7 @@ function CheckPage() {
               disabled={!canNext}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition disabled:opacity-40 enabled:hover:bg-primary/90"
             >
-              Далее <ArrowRight className="h-4 w-4" />
+              {t("check.next")} <ArrowRight className="h-4 w-4" />
             </button>
           ) : (
             <button
@@ -299,7 +305,7 @@ function CheckPage() {
               onClick={submit}
               className="inline-flex items-center gap-1.5 rounded-lg bg-[image:var(--gradient-primary)] px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[var(--shadow-soft)] transition hover:opacity-95"
             >
-              Получить анализ <ArrowRight className="h-4 w-4" />
+              {t("check.submit")} <ArrowRight className="h-4 w-4" />
             </button>
           )}
         </div>
