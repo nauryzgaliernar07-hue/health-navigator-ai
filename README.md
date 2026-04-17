@@ -45,7 +45,7 @@ Results showed moderate accuracy and high usability.
 ---
 
 ## 📸 Demo
-Live version: (вставь ссылку на сайт)
+Live version: https://symptomcheck.github.io
 
 ---
 
