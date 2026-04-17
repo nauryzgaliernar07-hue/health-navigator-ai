@@ -1,26 +1,117 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, BookOpenCheck, ListChecks, ShieldCheck, Stethoscope } from "lucide-react";
+import { DISEASES } from "@/data/diseases";
+import { TriageBadge } from "@/components/TriageBadge";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "МедАссистент — оценка симптомов и риска" },
+      { name: "description", content: "Опросник симптомов, триаж риска, безопасные рекомендации и справочник заболеваний." },
+    ],
+  }),
+  component: HomePage,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+const COMMON_IDS = [
+  "common_cold",
+  "influenza",
+  "covid19",
+  "migraine",
+  "hypertension",
+  "gastritis",
+  "uti",
+  "asthma",
+  "anxiety_disorder",
+  "diabetes_t2",
+];
+
+function HomePage() {
+  const common = COMMON_IDS.map((id) => DISEASES.find((d) => d.id === id)!).filter(Boolean);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div>
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-[image:var(--gradient-hero)]" />
+        <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1 text-xs font-medium text-primary">
+              <ShieldCheck className="h-3.5 w-3.5" /> Доказательная медицина · не заменяет врача
+            </span>
+            <h1 className="mt-5 text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
+              Поймите свои симптомы — спокойно и обоснованно
+            </h1>
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
+              Пошаговый опрос, оценка уровня риска (триаж), список возможных направлений и понятные рекомендации, что делать дальше.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                to="/check"
+                className="inline-flex items-center gap-2 rounded-xl bg-[image:var(--gradient-primary)] px-5 py-3 text-sm font-medium text-primary-foreground shadow-[var(--shadow-soft)] transition hover:opacity-95"
+              >
+                Начать опрос <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/catalog"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-foreground hover:bg-secondary"
+              >
+                Поиск по заболеваниям
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            { icon: ListChecks, title: "Опрос по шагам", text: "Возраст, симптомы, длительность, хронические болезни — всё структурировано." },
+            { icon: Stethoscope, title: "Триаж и красные флаги", text: "Видите уровень риска и тревожные симптомы, требующие срочной помощи." },
+            { icon: BookOpenCheck, title: "Почему именно это?", text: "Объясняем логику: какие признаки совпали и насколько." },
+          ].map((f) => (
+            <div key={f.title} className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                <f.icon className="h-5 w-5" />
+              </div>
+              <h3 className="mt-3 font-semibold text-foreground">{f.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{f.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Common diseases */}
+      <section className="mx-auto max-w-6xl px-4 pb-16">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-foreground">Самые распространённые заболевания</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Краткие критерии и уровень риска. Полный поиск — в разделе «Болезни».</p>
+          </div>
+          <Link to="/catalog" className="text-sm font-medium text-primary hover:underline">
+            Все болезни →
+          </Link>
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {common.map((d) => (
+            <Link
+              key={d.id}
+              to="/disease/$diseaseId"
+              params={{ diseaseId: d.id }}
+              className="group rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)] transition hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="font-semibold text-foreground group-hover:text-primary">{d.name}</h3>
+                <TriageBadge level={d.triage} />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{d.category}</p>
+              <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{d.shortDescription}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
