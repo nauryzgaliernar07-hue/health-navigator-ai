@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpenCheck, ListChecks, ShieldCheck, Stethoscope } from "lucide-react";
+import { ArrowRight, BookOpenCheck, Info, ListChecks, ShieldCheck, Stethoscope } from "lucide-react";
 import { DISEASES } from "@/data/diseases";
 import { TriageBadge } from "@/components/TriageBadge";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,7 +28,14 @@ const COMMON_IDS = [
 ];
 
 function HomePage() {
+  const { t } = useI18n();
   const common = COMMON_IDS.map((id) => DISEASES.find((d) => d.id === id)!).filter(Boolean);
+
+  const features = [
+    { icon: ListChecks, title: t("home.feature1.title"), text: t("home.feature1.text") },
+    { icon: Stethoscope, title: t("home.feature2.title"), text: t("home.feature2.text") },
+    { icon: BookOpenCheck, title: t("home.feature3.title"), text: t("home.feature3.text") },
+  ];
 
   return (
     <div>
@@ -37,28 +45,29 @@ function HomePage() {
         <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1 text-xs font-medium text-primary">
-              <ShieldCheck className="h-3.5 w-3.5" /> Доказательная медицина · не заменяет врача
+              <ShieldCheck className="h-3.5 w-3.5" /> {t("home.badge")}
             </span>
             <h1 className="mt-5 text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-              Поймите свои симптомы — спокойно и обоснованно
+              {t("home.title")}
             </h1>
-            <p className="mt-4 text-base text-muted-foreground md:text-lg">
-              Пошаговый опрос, оценка уровня риска (триаж), список возможных направлений и понятные рекомендации, что делать дальше.
-            </p>
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">{t("home.subtitle")}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/check"
                 className="inline-flex items-center gap-2 rounded-xl bg-[image:var(--gradient-primary)] px-5 py-3 text-sm font-medium text-primary-foreground shadow-[var(--shadow-soft)] transition hover:opacity-95"
               >
-                Начать опрос <ArrowRight className="h-4 w-4" />
+                {t("home.cta.start")} <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/catalog"
                 className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-foreground hover:bg-secondary"
               >
-                Поиск по заболеваниям
+                {t("home.cta.search")}
               </Link>
             </div>
+            <p className="mt-5 inline-flex items-start gap-2 rounded-lg bg-background/70 px-3 py-2 text-xs text-muted-foreground">
+              <Info className="mt-0.5 h-3.5 w-3.5 text-primary" /> {t("home.basis")}
+            </p>
           </div>
         </div>
       </section>
@@ -66,11 +75,7 @@ function HomePage() {
       {/* Features */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid gap-4 md:grid-cols-3">
-          {[
-            { icon: ListChecks, title: "Опрос по шагам", text: "Возраст, симптомы, длительность, хронические болезни — всё структурировано." },
-            { icon: Stethoscope, title: "Триаж и красные флаги", text: "Видите уровень риска и тревожные симптомы, требующие срочной помощи." },
-            { icon: BookOpenCheck, title: "Почему именно это?", text: "Объясняем логику: какие признаки совпали и насколько." },
-          ].map((f) => (
+          {features.map((f) => (
             <div key={f.title} className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
                 <f.icon className="h-5 w-5" />
@@ -86,11 +91,11 @@ function HomePage() {
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-foreground">Самые распространённые заболевания</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Краткие критерии и уровень риска. Полный поиск — в разделе «Болезни».</p>
+            <h2 className="text-2xl font-semibold text-foreground">{t("home.common.title")}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t("home.common.subtitle")}</p>
           </div>
           <Link to="/catalog" className="text-sm font-medium text-primary hover:underline">
-            Все болезни →
+            {t("home.common.all")}
           </Link>
         </div>
 
