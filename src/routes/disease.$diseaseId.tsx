@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowLeft, BookOpen, HeartPulse, Pill, Stethoscope } from "lucide-react";
-import { findDiseaseById } from "@/data/diseases";
+import { findDiseaseById, type Disease } from "@/data/diseases";
 import { SOURCES } from "@/data/sources";
 import { SYMPTOMS } from "@/data/symptoms";
 import { TriageBadge } from "@/components/TriageBadge";
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/disease/$diseaseId")({
 });
 
 function DiseasePage() {
-  const d = Route.useLoaderData();
+  const d = Route.useLoaderData() as Disease;
   const [allergies, setAllergies] = useState("");
   const [userSymptoms, setUserSymptoms] = useState<string[]>([]);
 
