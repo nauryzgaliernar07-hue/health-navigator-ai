@@ -1,18 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { ArrowRight, BookOpenCheck, Info, ListChecks, ShieldCheck, Stethoscope } from "lucide-react";
 import { DISEASES } from "@/data/diseases";
 import { TriageBadge } from "@/components/TriageBadge";
 import { useI18n } from "@/lib/i18n";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "МедАссистент — оценка симптомов и риска" },
-      { name: "description", content: "Опросник симптомов, триаж риска, безопасные рекомендации и справочник заболеваний." },
-    ],
-  }),
-  component: HomePage,
-});
 
 const COMMON_IDS = [
   "common_cold",
@@ -27,9 +18,13 @@ const COMMON_IDS = [
   "diabetes_t2",
 ];
 
-function HomePage() {
+export default function HomePage() {
   const { t } = useI18n();
   const common = COMMON_IDS.map((id) => DISEASES.find((d) => d.id === id)!).filter(Boolean);
+
+  useEffect(() => {
+    document.title = "МедАссистент — оценка симптомов и риска";
+  }, []);
 
   const features = [
     { icon: ListChecks, title: t("home.feature1.title"), text: t("home.feature1.text") },
@@ -39,7 +34,6 @@ function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[image:var(--gradient-hero)]" />
         <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24">
@@ -72,7 +66,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid gap-4 md:grid-cols-3">
           {features.map((f) => (
@@ -87,7 +80,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Common diseases */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <div className="flex items-end justify-between gap-4">
           <div>
@@ -103,8 +95,7 @@ function HomePage() {
           {common.map((d) => (
             <Link
               key={d.id}
-              to="/disease/$diseaseId"
-              params={{ diseaseId: d.id }}
+              to={`/disease/${d.id}`}
               className="group rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)] transition hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
             >
               <div className="flex items-start justify-between gap-2">

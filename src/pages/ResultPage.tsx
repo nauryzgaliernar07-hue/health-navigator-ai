@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ArrowRight, Info, Lightbulb, Stethoscope } from "lucide-react";
 import { loadSession } from "@/lib/session";
@@ -8,14 +8,7 @@ import { TriageBadge } from "@/components/TriageBadge";
 import { SYMPTOMS } from "@/data/symptoms";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/result")({
-  head: () => ({
-    meta: [{ title: "Результаты опроса — МедАссистент" }],
-  }),
-  component: ResultPage,
-});
-
-function ResultPage() {
+export default function ResultPage() {
   const { t } = useI18n();
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [empty, setEmpty] = useState(false);
@@ -53,13 +46,11 @@ function ResultPage() {
       <h1 className="text-2xl font-semibold text-foreground">{t("result.title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t("result.subtitle")}</p>
 
-      {/* Basis disclaimer */}
       <div className="mt-4 flex items-start gap-2 rounded-xl border border-primary/20 bg-primary-soft/60 p-3 text-sm text-foreground">
         <Info className="mt-0.5 h-4 w-4 text-primary" />
         <span>{t("result.basis")}</span>
       </div>
 
-      {/* Overall triage */}
       <div className={`mt-6 rounded-2xl border p-5 ${TRIAGE_COLOR[result.overallTriage]}`}>
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5" />
@@ -72,7 +63,6 @@ function ResultPage() {
         </div>
       </div>
 
-      {/* Red flags */}
       {result.redFlagsPresent.length > 0 && (
         <div className="mt-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-5">
           <p className="text-sm font-semibold text-destructive">{t("result.redflags")}</p>
@@ -85,7 +75,6 @@ function ResultPage() {
         </div>
       )}
 
-      {/* Mini-analysis */}
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-2">
           <Lightbulb className="h-4 w-4 text-primary" />
@@ -98,7 +87,6 @@ function ResultPage() {
         </ul>
       </section>
 
-      {/* Differential list */}
       <section className="mt-6 space-y-3">
         <h2 className="text-lg font-semibold text-foreground">{t("result.diff")}</h2>
         {result.matches.length === 0 && (
@@ -107,8 +95,7 @@ function ResultPage() {
         {result.matches.map((m) => (
           <Link
             key={m.disease.id}
-            to="/disease/$diseaseId"
-            params={{ diseaseId: m.disease.id }}
+            to={`/disease/${m.disease.id}`}
             className="block rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -125,7 +112,6 @@ function ResultPage() {
             </div>
             <p className="mt-2 text-sm text-muted-foreground">{m.disease.shortDescription}</p>
 
-            {/* Why */}
             <div className="mt-3 rounded-lg border border-border bg-secondary/40 p-3">
               <p className="text-xs font-semibold text-foreground">{t("result.why")}</p>
               <p className="mt-1 text-xs text-muted-foreground">

@@ -1,19 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 import { SOURCES } from "@/data/sources";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/sources")({
-  head: () => ({
-    meta: [
-      { title: "Источники — МедАссистент" },
-      { name: "description", content: "Источники информации, использованные в справочнике." },
-    ],
-  }),
-  component: SourcesPage,
-});
-
-function SourcesPage() {
+export default function SourcesPage() {
   const { t } = useI18n();
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
