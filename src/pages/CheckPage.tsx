@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Info } from "lucide-react";
 import { SYMPTOMS } from "@/data/symptoms";
@@ -6,17 +6,7 @@ import { saveSession } from "@/lib/session";
 import type { AnalysisInput } from "@/lib/analyze";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/check")({
-  head: () => ({
-    meta: [
-      { title: "Опрос симптомов — МедАссистент" },
-      { name: "description", content: "Пошаговый опрос для оценки симптомов и определения уровня риска." },
-    ],
-  }),
-  component: CheckPage,
-});
-
-function CheckPage() {
+export default function CheckPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
@@ -70,10 +60,8 @@ function CheckPage() {
       sleepHours: sleep ? Number(sleep) : undefined,
     };
     saveSession(data);
-    if (typeof window !== "undefined") {
-      window.sessionStorage.setItem("med-assistant-allergies-v1", allergies);
-    }
-    navigate({ to: "/result" });
+    window.sessionStorage.setItem("med-assistant-allergies-v1", allergies);
+    navigate("/result");
   };
 
   return (
@@ -85,7 +73,6 @@ function CheckPage() {
         <Info className="mt-0.5 h-3.5 w-3.5 text-primary" /> {t("check.basis")}
       </div>
 
-      {/* Stepper */}
       <ol className="mt-6 flex flex-wrap items-center gap-2 text-xs">
         {STEPS.map((label, i) => (
           <li key={label} className="flex items-center gap-2">

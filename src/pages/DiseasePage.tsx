@@ -1,52 +1,40 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowLeft, BookOpen, HeartPulse, Pill, Stethoscope } from "lucide-react";
-import { findDiseaseById, type Disease } from "@/data/diseases";
+import { findDiseaseById } from "@/data/diseases";
 import { SOURCES } from "@/data/sources";
 import { SYMPTOMS } from "@/data/symptoms";
 import { TriageBadge } from "@/components/TriageBadge";
 import { TRIAGE_DESCRIPTION, TRIAGE_LABEL } from "@/lib/triage";
 import { loadSession } from "@/lib/session";
 
-export const Route = createFileRoute("/disease/$diseaseId")({
-  loader: ({ params }) => {
-    const d = findDiseaseById(params.diseaseId);
-    if (!d) throw notFound();
-    return d;
-  },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: `${loaderData?.name ?? "Заболевание"} — МедАссистент` },
-      { name: "description", content: loaderData?.shortDescription ?? "" },
-    ],
-  }),
-  component: DiseasePage,
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-      <h1 className="text-2xl font-semibold">Заболевание не найдено</h1>
-      <Link to="/catalog" className="mt-4 inline-block text-primary hover:underline">
-        Вернуться в каталог
-      </Link>
-    </div>
-  ),
-});
+export default function DiseasePage() {
+  const { diseaseId } = useParams<{ diseaseId: string }>();
+  const d = diseaseId ? findDiseaseById(diseaseId) : undefined;
 
-function DiseasePage() {
-  const d = Route.useLoaderData() as Disease;
   const [allergies, setAllergies] = useState("");
   const [userSymptoms, setUserSymptoms] = useState<string[]>([]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
     setAllergies(window.sessionStorage.getItem("med-assistant-allergies-v1") ?? "");
     const session = loadSession();
     if (session) setUserSymptoms(session.symptoms);
   }, []);
 
+  if (!d) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 className="text-2xl font-semibold">Заболевание не найдено</h1>
+        <Link to="/catalog" className="mt-4 inline-block text-primary hover:underline">
+          Вернуться в каталог
+        </Link>
+      </div>
+    );
+  }
+
   const symLabel = (id: string) => SYMPTOMS.find((s) => s.id === id)?.label ?? id;
   const matched = d.symptoms.filter((s) => userSymptoms.includes(s));
 
-  // Filter pain relief by allergies (simple substring match)
   const allergyList = allergies
     .toLowerCase()
     .split(/[,;\n]/)
@@ -83,7 +71,6 @@ function DiseasePage() {
         </div>
       </header>
 
-      {/* Why */}
       <section className="mt-5 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-primary" />
@@ -102,7 +89,6 @@ function DiseasePage() {
         )}
       </section>
 
-      {/* Mortality risk */}
       <section className="mt-5 rounded-2xl border border-destructive/20 bg-destructive/5 p-5">
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -111,7 +97,6 @@ function DiseasePage() {
         <p className="mt-2 text-sm text-foreground">{d.mortalityRiskWithoutCare}</p>
       </section>
 
-      {/* What to do */}
       <section className="mt-5 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-2">
           <Stethoscope className="h-4 w-4 text-primary" />
@@ -139,7 +124,6 @@ function DiseasePage() {
         </div>
       </section>
 
-      {/* Pain relief */}
       <section className="mt-5 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-2">
           <Pill className="h-4 w-4 text-primary" />
@@ -149,15 +133,13 @@ function DiseasePage() {
           Это общая информация. Перед приёмом любого препарата уточните у врача и прочитайте инструкцию.
         </p>
 
-        {/* Allergy input */}
         <div className="mt-3 rounded-xl border border-border bg-secondary/40 p-3">
           <label className="text-xs font-semibold text-foreground">Есть ли у вас аллергия на лекарства?</label>
           <input
             value={allergies}
             onChange={(e) => {
               setAllergies(e.target.value);
-              if (typeof window !== "undefined")
-                window.sessionStorage.setItem("med-assistant-allergies-v1", e.target.value);
+              window.sessionStorage.setItem("med-assistant-allergies-v1", e.target.value);
             }}
             placeholder="Например: ибупрофен, аспирин"
             className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
@@ -195,7 +177,6 @@ function DiseasePage() {
         </div>
       </section>
 
-      {/* Red flags */}
       {d.redFlags.length > 0 && (
         <section className="mt-5 rounded-2xl border border-destructive/30 bg-destructive/5 p-5">
           <div className="flex items-center gap-2">
@@ -211,7 +192,6 @@ function DiseasePage() {
         </section>
       )}
 
-      {/* Sources */}
       <section className="mt-5 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
         <h2 className="font-semibold text-foreground">Источники</h2>
         <ul className="mt-2 space-y-1 text-sm">

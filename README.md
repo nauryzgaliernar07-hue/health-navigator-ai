@@ -1,72 +1,70 @@
 # 🩺 Symptom Checker
 
-A web-based tool for preliminary symptom analysis and risk assessment of common health conditions.
+Веб-приложение для предварительного анализа симптомов и оценки риска распространённых заболеваний.
 
-## 🚀 Overview
-This project is a rule-based symptom checker designed to help users better understand their symptoms and determine the appropriate level of medical attention.
-
-⚠️ This tool does NOT provide medical diagnosis and is for informational purposes only.
+⚠️ Этот инструмент **не ставит диагноз** и предназначен только для информационных целей.
 
 ---
 
-## 🧠 Features
-- Symptom-based condition suggestions  
-- Risk level classification (low / medium / high)  
-- Basic medical guidance  
-- Clean and user-friendly interface  
+## 🚀 Стек
+
+- React 19 + TypeScript
+- Vite 7 (статическая сборка)
+- React Router (HashRouter — для совместимости с GitHub Pages)
+- Tailwind CSS v4
+- Локальная база данных (~110 заболеваний, 50+ симптомов)
+- i18n: 🇷🇺 Русский, 🇰🇿 Қазақша, 🇬🇧 English
 
 ---
 
-## 🧪 Methodology
-The system uses a rule-based algorithm that evaluates:
-- user-reported symptoms  
-- age factors  
-- condition-specific patterns  
+## 🛠️ Локальная разработка
 
-The logic is inspired by general medical triage principles.
-
----
-
-## 📊 Research Component
-A small-scale user study was conducted to evaluate:
-- perceived accuracy  
-- usability  
-- clarity of recommendations  
-
-Results showed moderate accuracy and high usability.
+```bash
+bun install
+bun run dev      # http://localhost:8080
+bun run build    # сборка в ./dist
+bun run preview  # предпросмотр сборки
+```
 
 ---
 
-## 🛠️ Tech Stack
-- React / Next.js  
-- JavaScript  
-- Tailwind CSS  
+## 🌐 Публикация на GitHub Pages
+
+Проект настроен для автоматического деплоя через **GitHub Actions**.
+
+### Шаги:
+
+1. **Создайте репозиторий** с именем `<ваш-логин>.github.io`  
+   (например, `symptomcheck.github.io`)
+2. **Подключите Lovable к GitHub** через Connectors → GitHub → Connect project,  
+   выберите этот репозиторий.
+3. На GitHub откройте **Settings → Pages** и в поле **Source** выберите **GitHub Actions**.
+4. Сделайте любой коммит в ветку `main` (или просто запустите workflow вручную:  
+   Actions → "Deploy to GitHub Pages" → Run workflow).
+5. Через 1–2 минуты сайт будет доступен по адресу `https://<ваш-логин>.github.io`.
+
+Workflow файл: `.github/workflows/deploy.yml`
+
+### Важно про роутинг
+
+Используется `HashRouter`, поэтому URL выглядят как:
+```
+https://your-site.github.io/#/catalog
+https://your-site.github.io/#/disease/migraine
+```
+Это сделано специально, чтобы GitHub Pages никогда не возвращал 404 при обновлении страницы или прямом переходе по ссылке.
 
 ---
 
-## 📸 Demo
-Live version: https://symptomcheck.github.io
+## 📚 Источники
+- WHO (Всемирная организация здравоохранения)
+- CDC (Centers for Disease Control and Prevention)
+- NHS (National Health Service)
+- Mayo Clinic, MedlinePlus, UpToDate, Cochrane и др.
+
+Полный список — на странице `/sources` в приложении.
 
 ---
 
-## 📚 Sources
-- WHO (World Health Organization)  
-- CDC (Centers for Disease Control and Prevention)  
-- NHS (National Health Service)  
-
----
-
-## 👤 Author
-Developed independently as a personal project combining technology and medical interest.
-
----
-
-## 💡 Future Improvements
-- Expand symptom database  
-- Improve algorithm accuracy  
-- Add personalization features  
-
----
-
-## ⚠️ Disclaimer
-This website is not a medical tool and should not replace professional medical consultation.
+## ⚠️ Дисклеймер
+Этот сайт не является медицинским устройством и не заменяет консультацию врача. При тревожных симптомах немедленно обратитесь за медицинской помощью.

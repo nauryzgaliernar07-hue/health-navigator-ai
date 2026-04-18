@@ -1,24 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { DISEASES } from "@/data/diseases";
 import { TriageBadge } from "@/components/TriageBadge";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/catalog")({
-  head: () => ({
-    meta: [
-      { title: "Каталог заболеваний — МедАссистент" },
-      { name: "description", content: "Поиск по справочнику заболеваний с критериями и уровнем триажа." },
-    ],
-  }),
-  component: CatalogPage,
-});
-
-function CatalogPage() {
+export default function CatalogPage() {
   const { t } = useI18n();
   const [q, setQ] = useState("");
-
   const categories = useMemo(() => Array.from(new Set(DISEASES.map((d) => d.category))).sort(), []);
   const [cat, setCat] = useState<string>("");
 
@@ -73,8 +62,7 @@ function CatalogPage() {
         {filtered.map((d) => (
           <Link
             key={d.id}
-            to="/disease/$diseaseId"
-            params={{ diseaseId: d.id }}
+            to={`/disease/${d.id}`}
             className="group rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)] transition hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
           >
             <div className="flex items-start justify-between gap-2">
